@@ -9,15 +9,17 @@ public class Interpolation {
     static String sx = new String();
     static String sy = new String();
     static String sw = new String();
+    static String ModeType = new String("NULL");//默认的初始模式是空模式
     static double [] doublex;
     static double [] doubley;
     static double [] doublew;
-    static JFrame frame;
+    static JFrame frame = new JFrame("Bruce");
     static String result = new String("");
     static JLabel Jresult;
+    static JTextField jFieldMode = new JTextField(80);//模式选择
     static JTextField jFieldResult = new JTextField(80);
-    public static double []xx = new double[]{0.4,0.55,0.65,0.80,0.95,1.05};
-    public static double []yy = new double[]{0.41075,0.57815,0.69675,0.90,1.00,1.25382};
+    //public static double []xx = new double[]{0.4,0.55,0.65,0.80,0.95,1.05};
+    //public static double []yy = new double[]{0.41075,0.57815,0.69675,0.90,1.00,1.25382};
     public static void main(String[] args) {
         System.out.println("Test Success!");
         Interpolation pola = new Interpolation();
@@ -26,14 +28,17 @@ public class Interpolation {
 
         pola.initData();//初始化数据
         pola.setData();//设置数据
+        pola.initMenuBar();//初始化菜单栏
         pola.initUI();//初始化UI界面
         
-        Lagrange l2 = new Lagrange();
-        l2.setData(xx, yy);
-        System.out.println(l2.calcluate(0.596));
-        NewTon newTon = new NewTon();
-        newTon.setData(xx, yy);
-        System.out.println(newTon.calculate(0.596));
+
+        //Lagrange l2 = new Lagrange();
+        //l2.setData(xx, yy);
+        //System.out.println(l2.calcluate(0.596));
+        //NewTon newTon = new NewTon();
+        //newTon.setData(xx, yy);
+        //System.out.println(newTon.calculate(0.596));
+
     }
     public void setData()
     {
@@ -41,7 +46,7 @@ public class Interpolation {
     }
     public void initData()
     {
-        
+
     }
     public void processInput(String sx,String sy)
     {
@@ -78,7 +83,6 @@ public class Interpolation {
         /**
          * 这里是对frame的设置
          */
-        frame = new JFrame("Bruce");//初始化窗体结构
         frame.setSize(800,600);//设置容器尺寸
         //frame.setLocation(200,200);
         frame.setLayout(null);//设置布局
@@ -97,12 +101,15 @@ public class Interpolation {
         /**
          * 这里是对labels的设置
          */
-        JLabel label = new JLabel("love you ,maybe",JLabel.CENTER);
+        JLabel label = new JLabel("插值计算",JLabel.CENTER);
         frame.add(label);
         /**
          * JTextField的设置
          * 创建文本框，指定可见列数为80列
          */
+        jFieldMode.setText("当前模式：未选择");
+        jFieldMode.setEditable(false);
+        frame.add(jFieldMode);
         final JTextField jFieldX = new JTextField(80);
         //jFieldX.setFont(new Font(null, Font.PLAIN, 20));
         frame.add(jFieldX);
@@ -110,8 +117,11 @@ public class Interpolation {
         frame.add(jFieldY);
         final JTextField jFieldW = new JTextField(80);
         frame.add(jFieldW);
+        jFieldResult = new JTextField(80);
         jFieldResult.setEditable(false);
         frame.add(jFieldResult);
+
+        
         /**
          * 这里是对Buttons的设置
          */
@@ -162,7 +172,64 @@ public class Interpolation {
         frame.setLocationRelativeTo(null);//在屏幕上居中显示框架
         frame.setVisible(true);//界面可视化，需要放在最后面，对所有的组件进行渲染。 
     }
+    public void initMenuBar()
+    {
+        JMenu Menu,submMenu;
+        JMenuItem lag,newt,seg;
+        JMenuBar menuBar = new JMenuBar();
+        
+        lag = new JMenuItem("拉格朗日插值");
+        newt = new JMenuItem("牛顿插值");
+        seg = new JMenuItem("分段插值");
+        Menu = new JMenu("插值类型");
+        Menu.add(lag);
+        Menu.add(newt);
+        Menu.add(seg);
+        Menu.setSelected(true);
+        menuBar.add(Menu);
+        frame.setJMenuBar(menuBar);
+        lag.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+                updateMode("lag");
+            }
+        });
+        newt.addActionListener(new ActionListener(){
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+                updateMode("newton");
+            }
+        });
+        seg.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+                updateMode("seg");   
+            }
+        });
+    }
+    public void updateMode(String M)//mode表示模式的意思，即插值的类型
+    {
+        if (M == "lag"){
+            ModeType = new String("当前：拉格朗日插值");
+            jFieldMode.setText(ModeType);
+        }
+        else if (M == "newton")
+        {
+            ModeType = new String("当前：牛顿插值");
+            jFieldMode.setText(ModeType);
+        }
+        else if (M == "seg")
+        {
+            ModeType = new String("当前：分段插值");
+            jFieldMode.setText(ModeType);
+        }
+            
+    }
 }
 /**
  * 拉格朗日插值类
