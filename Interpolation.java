@@ -1,11 +1,10 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
-//import jdk.internal.org.objectweb.asm.tree.FrameNode;
+
+
 public class Interpolation {
     static String sx = new String();
     static String sy = new String();
@@ -13,6 +12,10 @@ public class Interpolation {
     static double [] doublex;
     static double [] doubley;
     static double [] doublew;
+    static JFrame frame;
+    static String result = new String("");
+    static JLabel Jresult;
+    static JTextField jFieldResult = new JTextField(80);
     public static double []xx = new double[]{0.4,0.55,0.65,0.80,0.95,1.05};
     public static double []yy = new double[]{0.41075,0.57815,0.69675,0.90,1.00,1.25382};
     public static void main(String[] args) {
@@ -26,8 +29,11 @@ public class Interpolation {
         pola.initUI();//初始化UI界面
         
         Lagrange l2 = new Lagrange();
-        l2.setLagData(xx, yy);
+        l2.setData(xx, yy);
         System.out.println(l2.calcluate(0.596));
+        NewTon newTon = new NewTon();
+        newTon.setData(xx, yy);
+        System.out.println(newTon.calculate(0.596));
     }
     public void setData()
     {
@@ -35,7 +41,7 @@ public class Interpolation {
     }
     public void initData()
     {
-
+        
     }
     public void processInput(String sx,String sy)
     {
@@ -51,16 +57,28 @@ public class Interpolation {
     public void processInput(String sw)
     {
         String [] strw = sw.split(" ");
-        doublew = new double[strw.length + 1];
+        doublew = new double[strw.length];
         for (int i = 0;i < strw.length;i++)
             doublew[i] = Double.parseDouble(strw[i]);
+    }
+    /**
+     * 更新结果的数值。可以被重写，需要被重写
+     */
+    public void updateUI(Lagrange l)
+    {
+        result = new String("");
+        for (int i = 0 ; i < doublew.length;i++)
+            result += String.valueOf(l.calcluate(doublew[i]) + " ");
+        System.out.println(result);
+        jFieldResult.setText(result);
+        
     }
     public void initUI()
     {
         /**
          * 这里是对frame的设置
          */
-        JFrame frame = new JFrame("Bruce");//初始化窗体结构
+        frame = new JFrame("Bruce");//初始化窗体结构
         frame.setSize(800,600);//设置容器尺寸
         //frame.setLocation(200,200);
         frame.setLayout(null);//设置布局
@@ -83,7 +101,7 @@ public class Interpolation {
         frame.add(label);
         /**
          * JTextField的设置
-         * 创建文本框，指定可见列数为8列
+         * 创建文本框，指定可见列数为80列
          */
         final JTextField jFieldX = new JTextField(80);
         //jFieldX.setFont(new Font(null, Font.PLAIN, 20));
@@ -92,7 +110,8 @@ public class Interpolation {
         frame.add(jFieldY);
         final JTextField jFieldW = new JTextField(80);
         frame.add(jFieldW);
-
+        jFieldResult.setEditable(false);
+        frame.add(jFieldResult);
         /**
          * 这里是对Buttons的设置
          */
@@ -115,9 +134,9 @@ public class Interpolation {
                 processInput(sw);
                 processInput(sx, sy);
 
-                System.out.println(sx);
-                System.out.println(sy);
-                
+                //System.out.println(sx);
+                //System.out.println(sy);
+                /*
                 System.out.println(" ");
                 for (int i = 0;i < doublex.length;i++)
                 {
@@ -129,10 +148,10 @@ public class Interpolation {
                     System.out.print(doubley[i] + " ");
                 }
                 System.out.println(" ");
+                */
                 Lagrange l = new Lagrange();
-                l.setLagData(doublex,doubley);
-                for (int i = 0 ; i < doublew.length;i++)
-                    System.out.println(l.calcluate(doublew[i]));
+                l.setData(doublex,doubley);
+                updateUI(l);
             }   
         });
         
@@ -169,7 +188,7 @@ class Lagrange
         }
         return result;
     }
-    public void setLagData(double xq[],double yq[])
+    public void setData(double xq[],double yq[])
     {
         n = xq.length - 1;
         x = new double[n + 1];
@@ -182,9 +201,78 @@ class Lagrange
 
 }
 /**
+ * 牛顿插值类
+ */
+class NewTon
+{
+    public int n;//几次插值
+    public double x[];
+    public double y[];
+    public void setData(double xq[],double yq[])
+    {
+        n = xq.length - 1;
+        x = new double[n + 1];
+        y = new double[n + 1];
+        for (int i = 0 ; i < xq.length;i++)
+            x[i] = xq[i];
+        for (int i = 0 ; i < yq.length;i++)
+            y[i] = yq[i];
+    }
+    public double calculate(double xx)
+    {
+        double []f = new double [n + 1];//差商表f[n] 表示 f[x,x0,x1,x2...,xn];
+        f[0] = y[0];//对于差商f[x0] = f(x0)
+        //f[0]表示f[x,x0] ，f[1] = f[x,x0,x1] = doubley
+        double []F = new double [n + 1];
+        double result = 0;//存储结果
+        //计算累乘积
+        for (int i = 0;i <= n;i++)
+        {
+            double tmp = 1;
+            for (int j = 0;j <= n;j++)
+            {
+                if(j != i)
+                {
+                    tmp *= (x[i] - x[j]);
+                }
+            }
+            F[i] = tmp;
+        }
+        //计算n阶差商
+        for (int i = 1 ; i <= n;i++)
+        {
+            double tmp = 0;
+            for (int k = 0;k <= i;k++)
+            {
+                tmp += ((y[i])/(F[i]));
+            }
+            f[i] = tmp;
+        }
+        //计算牛顿插值多项式
+        result += f[0];
+        for (int i = 0 ; i < n;i++)
+        {
+            double tmp = f[i+1];
+            for (int j = 0;j <= n;j++)
+            {
+                tmp *= (xx - x[0]);
+            }
+            result += tmp;
+        }
+        return result;
+    }
+}
+/**
  * 分段Lagrange插值类
  */
 class SegLag
+{
+
+}
+/**
+ * 画图类
+ */
+class Draw
 {
 
 }
