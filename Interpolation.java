@@ -2,18 +2,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
-
+import java.awt.Graphics;
 
 
 public class Interpolation {
     static String sx = new String();
     static String sy = new String();
     static String sw = new String();
+    static Lagrange lag = new Lagrange();
+    static NewTon nTon = new NewTon();
+    static SegLag sag = new SegLag();
     static String ModeType = new String("NULL");//默认的初始模式是空模式
+    static int ModeTypeInt = 0;
     static double [] doublex;
     static double [] doubley;
     static double [] doublew;
-    static JFrame frame = new JFrame("Bruce");
+    static DrawFunction frame = new DrawFunction();
     static String result = new String("");
     static JLabel Jresult;
     static JTextField jFieldMode = new JTextField(80);//模式选择
@@ -23,31 +27,23 @@ public class Interpolation {
     public static void main(String[] args) {
         System.out.println("Test Success!");
         Interpolation pola = new Interpolation();
-        //需要读入数据
-        //具体数据类型：...
 
-        pola.initData();//初始化数据
-        pola.setData();//设置数据
         pola.initMenuBar();//初始化菜单栏
         pola.initUI();//初始化UI界面
-        
-
+        frame.addPanel();
         //Lagrange l2 = new Lagrange();
         //l2.setData(xx, yy);
         //System.out.println(l2.calcluate(0.596));
         //NewTon newTon = new NewTon();
         //newTon.setData(xx, yy);
         //System.out.println(newTon.calculate(0.596));
-
-    }
-    public void setData()
-    {
         
     }
-    public void initData()
-    {
-
-    }
+    /**
+     * 处理输入的函数
+     * @param sx
+     * @param sy
+     */
     public void processInput(String sx,String sy)
     {
         String [] strx = sx.split(" ");
@@ -73,10 +69,17 @@ public class Interpolation {
     {
         result = new String("");
         for (int i = 0 ; i < doublew.length;i++)
-            result += String.valueOf(l.calcluate(doublew[i]) + " ");
+            result += String.valueOf(l.calculate(doublew[i]) + " ");
         System.out.println(result);
         jFieldResult.setText(result);
-        
+    }
+    public void updateUI(NewTon nton)
+    {
+        result = new String("");
+        for (int i = 0 ; i < doublew.length;i++)
+            result += String.valueOf(nton.calculate(doublew[i]) + " ");
+        System.out.println(result);
+        jFieldResult.setText(result);
     }
     public void initUI()
     {
@@ -84,19 +87,15 @@ public class Interpolation {
          * 这里是对frame的设置
          */
         frame.setSize(800,600);//设置容器尺寸
-        //frame.setLocation(200,200);
         frame.setLayout(null);//设置布局
-        
         frame.setLayout(new FlowLayout(FlowLayout.LEFT,10,20));
-        /*
-        JPanel panel1 = new JPanel();//创建文本框面板
-        panel1.setBorder(new EmptyBorder(50,50,50,50));
-        panel1.setBackground(Color.red);
-        
-        JPanel panel2 = new JPanel();//创建文本框面板
-        panel2.setBorder(new EmptyBorder(50,50,50,50));
-        panel2.setBackground(Color.white);
-        */
+
+        /**
+         * 中间容器
+         */
+        JPanel p = new JPanel();
+        p.setSize(200,200);
+        p.setBackground(Color.BLUE);
         
         /**
          * 这里是对labels的设置
@@ -109,19 +108,24 @@ public class Interpolation {
          */
         jFieldMode.setText("当前模式：未选择");
         jFieldMode.setEditable(false);
-        frame.add(jFieldMode);
-        final JTextField jFieldX = new JTextField(80);
-        //jFieldX.setFont(new Font(null, Font.PLAIN, 20));
-        frame.add(jFieldX);
-        final JTextField jFieldY = new JTextField(80);
-        frame.add(jFieldY);
-        final JTextField jFieldW = new JTextField(80);
-        frame.add(jFieldW);
-        jFieldResult = new JTextField(80);
+        //frame.add(jFieldMode);
+        final JTextField jFieldX = new JTextField(8);
+        //frame.add(jFieldX);
+        final JTextField jFieldY = new JTextField(8);
+        //frame.add(jFieldY);
+        final JTextField jFieldW = new JTextField(8);
+        //frame.add(jFieldW);
+        jFieldResult = new JTextField(8);
         jFieldResult.setEditable(false);
-        frame.add(jFieldResult);
-
+        //frame.add(jFieldResult); 
+        p.add(jFieldMode);
+        p.add(jFieldX);
+        p.add(jFieldY);
+        p.add(jFieldW);
+        p.add(jFieldResult);
         
+        
+
         /**
          * 这里是对Buttons的设置
          */
@@ -144,30 +148,30 @@ public class Interpolation {
                 processInput(sw);
                 processInput(sx, sy);
 
-                //System.out.println(sx);
-                //System.out.println(sy);
-                /*
-                System.out.println(" ");
-                for (int i = 0;i < doublex.length;i++)
+                if (ModeTypeInt == 1)
                 {
-                    System.out.print(doublex[i] + " ");
+                    lag.setData(doublex, doubley);
+                    System.out.println("click2");
+                    updateUI(lag);
                 }
-                System.out.println(" ");
-                for (int i = 0;i < doubley.length;i++)
+                if (ModeTypeInt == 2)
                 {
-                    System.out.print(doubley[i] + " ");
+                    nTon.setData(doublex, doubley);
+                    updateUI(nTon);
                 }
-                System.out.println(" ");
-                */
-                Lagrange l = new Lagrange();
-                l.setData(doublex,doubley);
-                updateUI(l);
+                if (ModeTypeInt == 3)
+                {
+                    System.out.println(123);
+                    //updateUI(Seg);
+                }
             }   
         });
         
         /**
          * 这里是函数结尾的必要设置
          */
+
+        frame.getContentPane().add(p);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//界面结束后关闭程序
         frame.setLocationRelativeTo(null);//在屏幕上居中显示框架
         frame.setVisible(true);//界面可视化，需要放在最后面，对所有的组件进行渲染。 
@@ -192,7 +196,8 @@ public class Interpolation {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO Auto-generated method stub
-                updateMode("lag");
+                updateModeStr("lag");
+                System.out.println("click1");;
             }
         });
         newt.addActionListener(new ActionListener(){
@@ -200,7 +205,7 @@ public class Interpolation {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO Auto-generated method stub
-                updateMode("newton");
+                updateModeStr("newton");
             }
         });
         seg.addActionListener(new ActionListener(){
@@ -208,24 +213,27 @@ public class Interpolation {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO Auto-generated method stub
-                updateMode("seg");   
+                updateModeStr("seg");   
             }
         });
     }
-    public void updateMode(String M)//mode表示模式的意思，即插值的类型
+    public void updateModeStr(String M)//mode表示模式的意思，即插值的类型
     {
         if (M == "lag"){
             ModeType = new String("当前：拉格朗日插值");
+            ModeTypeInt = 1;
             jFieldMode.setText(ModeType);
         }
         else if (M == "newton")
         {
             ModeType = new String("当前：牛顿插值");
+            ModeTypeInt = 2;
             jFieldMode.setText(ModeType);
         }
         else if (M == "seg")
         {
             ModeType = new String("当前：分段插值");
+            ModeTypeInt = 3;
             jFieldMode.setText(ModeType);
         }
             
@@ -240,7 +248,7 @@ class Lagrange
     public double x[];
     public double y[];
     //x[],y[]代表的是所有(x,y)的已知点
-    public double calcluate(double xx)
+    public double calculate(double xx)
     {
         double result = 0;
         for (int i = 0 ;i <= n;i++)
@@ -342,4 +350,111 @@ class SegLag
 class Draw
 {
 
+}
+
+class DrawFunction extends JFrame {
+    static double timesx = 10, timesy = 10;
+    double F(double x) {
+        return Math.sin(x) / Math.pow(1.1, -x);//函数表达式
+    }
+    int x0, y0;
+    static int W = 800, H = 600;
+    static double L = -W / 2, R = W / 2;
+    Graphics G;
+    public void setOrigin(int x, int y) {
+        this.x0 = x;
+        this.y0 = y;
+        // show coordinate axis
+        drawLine(-W / 2, 0, W / 2, 0);
+        drawLine(0, -H / 2, 0, H / 2);
+        drawString("X", W / 2 - 30, -20);
+        drawString("Y", -20, H / 2 - 20);
+        for (int i = 1; i <= 10; i ++) {
+            draw(W / 2 - i - 6, i);
+            draw(W / 2 - i - 6, -i);
+        }
+        for (int i = 1; i <= 10; i ++) {
+            draw(-i, H / 2 - i);
+            draw(i, H / 2 - i);
+        }
+    }
+    public void addPanel()
+    {
+        this.add(new NewPanel());
+    }
+    /*
+    public static void main(String[] args) {
+        DrawFunction frame = new DrawFunction();
+        frame.setTitle("DrawFunction");
+        frame.setSize(W, H);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.setResizable(false);
+    }*/
+    public class Coordinate2D {
+        int x, y;
+        public Coordinate2D(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        public int getPixelPointX() {
+            return x0 + x;
+        }
+        public int getPixelPointY() {
+            return y0 - y;
+        }
+    }
+    class NewPanel extends JPanel {
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            G = g;
+            setOrigin(W / 2, H / 2);
+            // in the following , draw what you want draw!
+            for (int i = -W / 2; i <= W / 2; i ++) {
+                draw(i, work(i));
+            }
+            /*
+            for (int i = 0; i < 1000; i ++) {
+                int x = (int)(Math.random() * 400 - 200);
+                int y = (int)(Math.random() * 400 - 200);
+                drawString("哈哈", x, y);
+            }
+            */
+        }
+    }
+    int work(int x) {
+        //timesx = 0.01;
+        //timesy = 100;
+        return (int)(F(x / timesx) * timesy);
+    }
+    public void draw(int x, int y) {
+        int X = new Coordinate2D(x, y).getPixelPointX();
+        int Y = new Coordinate2D(x, y).getPixelPointY();
+        G.drawLine(X, Y, X, Y);
+    }
+    public void drawRec(int x1, int y1, int x2, int y2) {
+        int dx = x1 < x2? 1 : -1;
+        int dy = y1 < y2? 1 : -1;
+        for (int i = x1; i != x2 + dx; i += dx) {
+            for (int j = y1; j != y2 + dy; j += dy) {
+                draw(i, j);
+            }
+        }
+    }
+    public void drawLine(int x1, int y1, int x2, int y2) {
+        int dx = x1 < x2? 1 : -1;
+        if (x1 == x2) drawRec(x1, y1, x2, y2);
+        else {
+            double d = (double)(y2 - y1) / (x2 - x1);
+            for (int i = x1; i != x2 + dx; i += dx) {
+                draw(i, (int)(y1 + (i - x1) * d));
+            }
+        }
+    }
+    public void drawString(String s, int x, int y) {
+        int X = new Coordinate2D(x, y).getPixelPointX();
+        int Y = new Coordinate2D(x, y).getPixelPointY();
+        G.drawString(s, X, Y);
+    }
 }
