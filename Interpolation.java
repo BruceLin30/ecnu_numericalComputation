@@ -17,7 +17,9 @@ public class Interpolation {
     static double [] doublex;
     static double [] doubley;
     static double [] doublew;
-    static DrawFunction frame = new DrawFunction();
+    static Graphics g;
+    JFrame frame = new JFrame();
+    //static DrawFunction frame = new DrawFunction();
     static String result = new String("");
     static JLabel Jresult;
     static JTextField jFieldMode = new JTextField(80);//模式选择
@@ -27,10 +29,11 @@ public class Interpolation {
     public static void main(String[] args) {
         System.out.println("Test Success!");
         Interpolation pola = new Interpolation();
-
+        
         pola.initMenuBar();//初始化菜单栏
         pola.initUI();//初始化UI界面
-        frame.addPanel();
+        paint(g);
+        
         //Lagrange l2 = new Lagrange();
         //l2.setData(xx, yy);
         //System.out.println(l2.calcluate(0.596));
@@ -83,46 +86,79 @@ public class Interpolation {
     }
     public void initUI()
     {
+        
+
         /**
          * 这里是对frame的设置
          */
         frame.setSize(800,600);//设置容器尺寸
-        frame.setLayout(null);//设置布局
-        frame.setLayout(new FlowLayout(FlowLayout.LEFT,10,20));
+        //frame.setLayout(null);//设置布局
+        //frame.addPanel();
 
         /**
          * 中间容器
          */
         JPanel p = new JPanel();
-        p.setSize(200,200);
-        p.setBackground(Color.BLUE);
+        p.setLayout(null);
+        p.setOpaque(false);
+        //p.setSize(200,200);
+        //p.setBackground(Color.BLUE);
         
         /**
          * 这里是对labels的设置
          */
-        JLabel label = new JLabel("插值计算",JLabel.CENTER);
-        frame.add(label);
+        JLabel label = new JLabel("插值计算");
+        label.setBounds(20, 20, 100, 20);
+        label.setForeground(Color.BLUE);
+        p.add(label);
+        JLabel label2 = new JLabel("请输入X向量");
+        label2.setBounds(20, 100, 100, 20);
+        p.add(label2);
+        JLabel label3 = new JLabel("请输入Y向量");
+        label3.setBounds(20, 140, 100, 20);
+        p.add(label3);
+        JLabel label4 = new JLabel("请输入Z向量");
+        label4.setBounds(20, 180, 100, 20);
+        p.add(label4);
+        JLabel label5 = new JLabel("结果向量：");
+        label5.setBounds(20, 220, 100, 20);
+        p.add(label5);
+        //frame.add(label);
         /**
          * JTextField的设置
          * 创建文本框，指定可见列数为80列
          */
         jFieldMode.setText("当前模式：未选择");
         jFieldMode.setEditable(false);
+        jFieldMode.setBounds(100, 20, 120, 30);
+        jFieldMode.setForeground(Color.RED);
+        p.add(jFieldMode);
         //frame.add(jFieldMode);
-        final JTextField jFieldX = new JTextField(8);
+        final JTextField jFieldX = new JTextField(80);
+        jFieldX.setBounds(100, 100, 200, 30);
+        p.add(jFieldX);
         //frame.add(jFieldX);
-        final JTextField jFieldY = new JTextField(8);
+        final JTextField jFieldY = new JTextField(80);
+        jFieldY.setBounds(100, 140, 200, 30);
+        p.add(jFieldY);
         //frame.add(jFieldY);
-        final JTextField jFieldW = new JTextField(8);
+        final JTextField jFieldW = new JTextField(80);
+        jFieldW.setBounds(100, 180, 200, 30);
+        p.add(jFieldW);
         //frame.add(jFieldW);
-        jFieldResult = new JTextField(8);
+        jFieldResult = new JTextField(80);
         jFieldResult.setEditable(false);
+        jFieldResult.setBounds(100, 220, 200, 30);
+        p.add(jFieldResult);
         //frame.add(jFieldResult); 
+
+        /*
         p.add(jFieldMode);
         p.add(jFieldX);
         p.add(jFieldY);
         p.add(jFieldW);
         p.add(jFieldResult);
+        */
         
         
 
@@ -130,18 +166,18 @@ public class Interpolation {
          * 这里是对Buttons的设置
          */
         JButton button1 = new JButton("开始计算");//
-        //button.setBounds(80, 80, 200, 100);//设置按钮在容器中的位置
+        button1.setBounds(100, 270, 200, 40);//设置按钮在容器中的位置
+        p.add(button1);
         //button.setBounds(int x,int y,int width,int height)  (x,y)代表的是左上角顶点的位置,width和height
         //的是按钮的宽度
-        button1.setFont(new Font(null, Font.PLAIN, 20));
+        //button1.setFont(new Font(null, Font.PLAIN, 20));
         //panel2.add(button);//按钮加在容器上
-        frame.add(button1); 
+        //frame.add(button1); 
         button1.addActionListener(new ActionListener()//对按钮增加监听
         {   
             //此处需要使用的是匿名类，需要重写actionPerformed函数，否则会出错
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 sx = jFieldX.getText();
                 sy = jFieldY.getText();
                 sw = jFieldW.getText();
@@ -171,6 +207,7 @@ public class Interpolation {
          * 这里是函数结尾的必要设置
          */
 
+        
         frame.getContentPane().add(p);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//界面结束后关闭程序
         frame.setLocationRelativeTo(null);//在屏幕上居中显示框架
@@ -178,7 +215,7 @@ public class Interpolation {
     }
     public void initMenuBar()
     {
-        JMenu Menu,submMenu;
+        JMenu Menu;
         JMenuItem lag,newt,seg;
         JMenuBar menuBar = new JMenuBar();
         
@@ -195,25 +232,24 @@ public class Interpolation {
         lag.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 updateModeStr("lag");
-                System.out.println("click1");;
+                System.out.println("当前模式：拉格朗日");
             }
         });
         newt.addActionListener(new ActionListener(){
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 updateModeStr("newton");
+                System.out.println("当前模式：牛顿");
             }
         });
         seg.addActionListener(new ActionListener(){
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 updateModeStr("seg");   
+                System.out.println("当前模式:分段");
             }
         });
     }
@@ -237,6 +273,12 @@ public class Interpolation {
             jFieldMode.setText(ModeType);
         }
             
+    }
+    public static void paint(Graphics g)
+    {
+        g.setColor(Color.blue);
+        g.drawLine(100, 100, 300, 300);
+        
     }
 }
 /**
@@ -351,7 +393,7 @@ class Draw
 {
 
 }
-
+/*
 class DrawFunction extends JFrame {
     static double timesx = 10, timesy = 10;
     double F(double x) {
@@ -382,7 +424,7 @@ class DrawFunction extends JFrame {
     {
         this.add(new NewPanel());
     }
-    /*
+    
     public static void main(String[] args) {
         DrawFunction frame = new DrawFunction();
         frame.setTitle("DrawFunction");
@@ -391,7 +433,7 @@ class DrawFunction extends JFrame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.setResizable(false);
-    }*/
+    }
     public class Coordinate2D {
         int x, y;
         public Coordinate2D(int x, int y) {
@@ -414,13 +456,7 @@ class DrawFunction extends JFrame {
             for (int i = -W / 2; i <= W / 2; i ++) {
                 draw(i, work(i));
             }
-            /*
-            for (int i = 0; i < 1000; i ++) {
-                int x = (int)(Math.random() * 400 - 200);
-                int y = (int)(Math.random() * 400 - 200);
-                drawString("哈哈", x, y);
-            }
-            */
+            
         }
     }
     int work(int x) {
@@ -458,3 +494,4 @@ class DrawFunction extends JFrame {
         G.drawString(s, X, Y);
     }
 }
+*/
