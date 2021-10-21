@@ -4,277 +4,412 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
-
-
 import java.awt.Graphics;
 
+public class NumericalIntegrating {
 
-public class NumericalIntegrating{
-
-    static String ModeType = new String("NULL");//默认的初始模式是空模式
-    static int ModeTypeInt = 0;
-
+    static String FunType = new String("NULL");// 默认的初始模式是空模式
+    static String ModeType = new String("NULL");
+    static int FunTypeInt = 0;//1 2 3 4
+    static int ModeTypeInt = 0;//5 6 7
     static Graphics g;
     static JFrame frame = new JFrame();
-    //static DrawFunction frame = new DrawFunction();
+    // static DrawFunction frame = new DrawFunction();
     static String result = new String("");
     static JLabel Jresult;
-    static JTextField jFieldMode = new JTextField(80);//模式选择
+    static JTextField jFieldMode = new JTextField(120);// 模式选择
+    static JTextField JFieldFun = new JTextField(120);
     static JTextField jFieldResult = new JTextField(80);
-    
-    public void paint(Graphics g)
-    {
+
+    public void paint(Graphics g) {
         g.setColor(Color.blue);
         g.drawLine(100, 100, 300, 300);
     }
+
     public static void main(String[] args) {
         System.out.println("Test Success!");
-        NumericalIntegrating pola = new NumericalIntegrating();
-        
-        pola.initMenuBar();//初始化菜单栏
-        pola.initUI();//初始化UI界面
-        
-        //Lagrange l2 = new Lagrange();
-        //l2.setData(xx, yy);
-        //System.out.println(l2.calcluate(0.596));
-        //NewTon newTon = new NewTon();y
-        //newTon.setData(xx, yy);
-        //System.out.println(newTon.calculate(0.596));
-        
+        NumericalIntegrating NI = new NumericalIntegrating();
+
+        NI.initMenuBar();// 初始化菜单栏
+        NI.initUI();// 初始化UI界面
+
+        // Lagrange l2 = new Lagrange();
+        // l2.setData(xx, yy);
+        // System.out.println(l2.calcluate(0.596));
+        // NewTon newTon = new NewTon();y
+        // newTon.setData(xx, yy);
+        // System.out.println(newTon.calculate(0.596));
+
     }
-/*
-public void processInput(String sx,String sy)
-    {
-        String [] strx = sx.split(" ");
-        String [] stry = sy.split(" ");
-        doublex = new double[strx.length];
-        doubley = new double[stry.length];
-        for (int i = 0; i < strx.length;i++)
-            doublex[i] = Double.parseDouble(strx[i]);
-        for (int i = 0;i < stry.length;i++)
-            doubley[i] = Double.parseDouble(stry[i]);
-    }
-    public void processInput(String sw)
-    {
-        String [] strw = sw.split(" ");
-        doublew = new double[strw.length];
-        for (int i = 0;i < strw.length;i++)
-            doublew[i] = Double.parseDouble(strw[i]);
-    }
-*/
-    
-    
-    public void initUI()
-    {
-        
+    /*
+     * public void processInput(String sx,String sy) { String [] strx =
+     * sx.split(" "); String [] stry = sy.split(" "); doublex = new
+     * double[strx.length]; doubley = new double[stry.length]; for (int i = 0; i <
+     * strx.length;i++) doublex[i] = Double.parseDouble(strx[i]); for (int i = 0;i <
+     * stry.length;i++) doubley[i] = Double.parseDouble(stry[i]); } public void
+     * processInput(String sw) { String [] strw = sw.split(" "); doublew = new
+     * double[strw.length]; for (int i = 0;i < strw.length;i++) doublew[i] =
+     * Double.parseDouble(strw[i]); }
+     */
+
+    public void initUI() {
 
         /**
          * 这里是对frame的设置
          */
-        frame.setSize(800,600);//设置容器尺寸
+        frame.setSize(800, 600);// 设置容器尺寸
         frame.setLayout(new BorderLayout());
-        //frame.setLayout(null);//设置布局
-        //frame.addPanel();
+        // frame.setLayout(null);//设置布局
+        // frame.addPanel();
 
         /**
          * 中间容器
          */
-        JPanel p2 = new JPanel(){
+        JPanel p2 = new JPanel() {
 
-            public void paint(Graphics g)
-            {
+            public void paint(Graphics g) {
                 super.paint(g);
                 g.drawLine(350, 100, 500, 400);
             }
         };
         JPanel p = new JPanel();
-        //p.setSize(300,300);
-        //p.setPreferredSize(new Dimension(300,300));
+        // p.setSize(300,300);
+        // p.setPreferredSize(new Dimension(300,300));
         p.setLayout(null);
         p.setOpaque(false);
-        //p.setSize(200,200);
-        //p.setBackground(Color.BLUE);
-        
+        // p.setSize(200,200);
+        // p.setBackground(Color.BLUE);
+
         /**
          * 这里是对labels的设置
          */
-        JLabel label = new JLabel("数值积分");
-        label.setBounds(20, 20, 100, 20);
+        JLabel label = new JLabel("数值积分函数：");
+        label.setBounds(20, 20, 130, 20);
         label.setForeground(Color.BLUE);
         p.add(label);
+        JLabel labelfun = new JLabel("数值积分公式：");
+        labelfun.setBounds(20, 70, 130, 20);
+        labelfun.setForeground(Color.BLUE);
+        p.add(labelfun);
         JLabel label2 = new JLabel("请输入积分上下限：");
-        label2.setBounds(20, 100, 100, 20);
+        label2.setBounds(20, 120, 130, 20);
         p.add(label2);
-        /*
-        JLabel label3 = new JLabel("请输入Y向量");
-        label3.setBounds(20, 140, 100, 20);
+        JLabel labelPrompt = new JLabel("输入格式：a b e(若有)");
+        labelPrompt.setBounds(20, 135, 130, 20);
+        p.add(labelPrompt);
+        JLabel label3 = new JLabel("请输入积分步长中的n(偶数)：");
+        label3.setBounds(20, 180, 180, 20);
         p.add(label3);
-        JLabel label4 = new JLabel("请输入Z向量");
-        label4.setBounds(20, 180, 100, 20);
-        p.add(label4);
-        */
+        /*
+         * JLabel label3 = new JLabel("请输入Y向量"); label3.setBounds(20, 140, 100, 20);
+         * p.add(label3); JLabel label4 = new JLabel("请输入Z向量"); label4.setBounds(20,
+         * 180, 100, 20); p.add(label4);
+         */
         JLabel label5 = new JLabel("积分结果：");
-        label5.setBounds(20, 160, 100, 20);
+        label5.setBounds(20, 240, 100, 20);
         p.add(label5);
-        
-        
-        
-        //frame.add(label);
+
+        // frame.add(label);
         /**
-         * JTextField的设置
-         * 创建文本框，指定可见列数为80列
+         * JTextField的设置 创建文本框，指定可见列数为80列
          */
         jFieldMode.setText("当前函数：未选择");
         jFieldMode.setEditable(false);
-        jFieldMode.setBounds(200, 20, 120, 30);
+        jFieldMode.setBounds(250, 20, 200, 30);
         jFieldMode.setForeground(Color.RED);
         p.add(jFieldMode);
-        //frame.add(jFieldMode);
+
+        JFieldFun.setText("当前积分公式：未选择");
+        JFieldFun.setEditable(false);
+        JFieldFun.setBounds(250, 70, 200, 30);
+        JFieldFun.setForeground(Color.RED);
+        p.add(JFieldFun);
+        // frame.add(jFieldMode);
         final JTextField jFieldX = new JTextField(80);
-        jFieldX.setBounds(200, 100, 200, 30);
+        jFieldX.setBounds(250, 120, 200, 30);
         p.add(jFieldX);
-        //frame.add(jFieldX);
+        final JTextField jFieldn = new JTextField(80);
+        jFieldn.setBounds(250, 180, 200, 30);
+        p.add(jFieldn);
+        // frame.add(jFieldX);
         /*
-        final JTextField jFieldY = new JTextField(80);
-        jFieldY.setBounds(100, 140, 200, 30);
-        p.add(jFieldY);
-        */
-        //frame.add(jFieldY);
+         * final JTextField jFieldY = new JTextField(80); jFieldY.setBounds(100, 140,
+         * 200, 30); p.add(jFieldY);
+         */
+        // frame.add(jFieldY);
         /*
-        final JTextField jFieldW = new JTextField(80);
-        jFieldW.setBounds(100, 180, 200, 30);
-        p.add(jFieldW);
-        */
-        //frame.add(jFieldW);
+         * final JTextField jFieldW = new JTextField(80); jFieldW.setBounds(100, 180,
+         * 200, 30); p.add(jFieldW);
+         */
+        // frame.add(jFieldW);
         jFieldResult = new JTextField(80);
         jFieldResult.setEditable(false);
-        jFieldResult.setBounds(200, 160, 200, 30);
+        jFieldResult.setBounds(250, 240, 200, 30);
         p.add(jFieldResult);
-        
 
         /**
          * 这里是对Buttons的设置
          */
         JButton button1 = new JButton("开始计算");//
-        button1.setBounds(200, 225, 200, 40);//设置按钮在容器中的位置
+        button1.setBounds(250, 310, 200, 40);// 设置按钮在容器中的位置
 
         p.add(button1);
 
-        button1.addActionListener(new ActionListener()//对按钮增加监听
-        {   
-            //此处需要使用的是匿名类，需要重写actionPerformed函数，否则会出错
+        button1.addActionListener(new ActionListener()// 对按钮增加监听
+        {
+            // 此处需要使用的是匿名类，需要重写actionPerformed函数，否则会出错
             @Override
             public void actionPerformed(ActionEvent e) {
                 /*
-                sx = jFieldX.getText();
-                sy = jFieldY.getText();
-                sw = jFieldW.getText();
-                processInput(sw);
-                processInput(sx, sy);
+                 * sx = jFieldX.getText(); sy = jFieldY.getText(); sw = jFieldW.getText();
+                 * processInput(sw); processInput(sx, sy);
+                 * 
+                 * if (FunTypeInt == 1) { lag.setData(doublex, doubley);
+                 * System.out.println("click2"); updateUI(lag); } if (FunTypeInt == 2) {
+                 * nTon.setData(doublex, doubley); updateUI(nTon); } if (FunTypeInt == 3) {
+                 * seg.setData(doublex,doubley); updateUI(seg); }
+                 */
 
-                if (ModeTypeInt == 1)
-                {
-                    lag.setData(doublex, doubley);
-                    System.out.println("click2");
-                    updateUI(lag);
-                }
-                if (ModeTypeInt == 2)
-                {
-                    nTon.setData(doublex, doubley);
-                    updateUI(nTon);
-                }
-                if (ModeTypeInt == 3)
-                {
-                    seg.setData(doublex,doubley);
-                    updateUI(seg);
-                }
-                */
-
-            }   
+            }
         });
-        
+
         /**
          * 这里是函数结尾的必要设置
          */
 
         frame.getContentPane().add(p2);
         frame.getContentPane().add(p);
-        
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//界面结束后关闭程序
-        frame.setLocationRelativeTo(null);//在屏幕上居中显示框架
-        frame.setVisible(true);//界面可视化，需要放在最后面，对所有的组件进行渲染。 
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 界面结束后关闭程序
+        frame.setLocationRelativeTo(null);// 在屏幕上居中显示框架
+        frame.setVisible(true);// 界面可视化，需要放在最后面，对所有的组件进行渲染。
     }
-    public void initMenuBar()
-    {
-        JMenu Menu;
-        JMenuItem funItem1,funItem2,funItem3,funItem4;
+
+    public void initMenuBar() {
+        JMenu Menu1, Menu2;
+        JMenuItem funItem1, funItem2, funItem3, funItem4;
+        JMenuItem trape, simpson, romberg;
         JMenuBar menuBar = new JMenuBar();
-        
+
         funItem1 = new JMenuItem("函数1");
         funItem2 = new JMenuItem("函数2");
         funItem3 = new JMenuItem("函数3");
         funItem4 = new JMenuItem("函数4");
-        Menu = new JMenu("积分函数选择");
-        Menu.add(funItem1);
-        Menu.add(funItem2);
-        Menu.add(funItem3);
-        Menu.add(funItem4);
-        Menu.setSelected(true);
-        menuBar.add(Menu);
+        trape = new JMenuItem("复合梯形公式");
+        simpson = new JMenuItem("复合Simpson公式");
+        romberg = new JMenuItem("Romberg算法");
+        Menu1 = new JMenu("积分函数选择");
+        Menu2 = new JMenu("积分公式选择");
+
+        Menu1.add(funItem1);
+        Menu1.add(funItem2);
+        Menu1.add(funItem3);
+        Menu1.add(funItem4);
+        Menu1.setSelected(true);
+        Menu2.add(trape);
+        Menu2.add(simpson);
+        Menu2.add(romberg);
+        Menu2.setSelected(true);
+        menuBar.add(Menu1);
+        menuBar.add(Menu2);
         frame.setJMenuBar(menuBar);
-        funItem1.addActionListener(new ActionListener(){
+        funItem1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //updateModeStr("lag");
+                // updateModeStr("lag");
+                updateModeStr(1);
                 System.out.println("当前函数：1");
             }
         });
-        funItem2.addActionListener(new ActionListener(){
+        funItem2.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //updateModeStr("newton");
+                // updateModeStr("newton");
+                updateModeStr(2);
                 System.out.println("当前函数：2");
             }
         });
-        funItem3.addActionListener(new ActionListener(){
+        funItem3.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //updateModeStr("seg");   
+                // updateModeStr("seg");
+                updateModeStr(3);
                 System.out.println("当前函数: 3");
             }
-            
+
         });
-        funItem4.addActionListener(new ActionListener(){
+        funItem4.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //updateModeStr("seg");   
+                // updateModeStr("seg");
+                updateModeStr(4);
                 System.out.println("当前函数：4");
             }
-            
+
+        });
+        trape.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // updateModeStr("seg");
+                // updateModeStr(4);
+                updateModeStr(5);
+                System.out.println("当前积分公式：复化梯形积分");
+            }
+        });
+        simpson.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // updateModeStr("seg");
+                // updateModeStr(4);
+                updateModeStr(6);
+                System.out.println("当前积分公式：复化Simpson积分");
+            }
+        });
+        romberg.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // updateModeStr("seg");
+                // updateModeStr(4);
+                updateModeStr(7);
+                System.out.println("当前积分公式：Romberg积分");
+            }
         });
     }
-    public void updateModeStr(String M)//mode表示模式的意思，即插值的类型
+
+    public void updateModeStr(int num)// mode表示模式的意思，即插值的类型
     {
-        if (M == "lag"){
-            ModeType = new String("当前：拉格朗日插值");
-            ModeTypeInt = 1;
-            jFieldMode.setText(ModeType);
+        if (num == 1) {
+            FunType = new String("当前函数：1");
+            FunTypeInt = 1;
+            jFieldMode.setText(FunType);
+        } else if (num == 2) {
+            FunType = new String("当前函数：2");
+            FunTypeInt = 2;
+            jFieldMode.setText(FunType);
+        } else if (num == 3) {
+            FunType = new String("当前函数：3");
+            FunTypeInt = 3;
+            jFieldMode.setText(FunType);
+        } else if (num == 4) {
+            FunType = new String("当前函数：4");
+            FunTypeInt = 4;
+            jFieldMode.setText(FunType);
         }
-        else if (M == "newton")
+        else if (num == 5)
         {
-            ModeType = new String("当前：牛顿插值");
-            ModeTypeInt = 2;
-            jFieldMode.setText(ModeType);
+            ModeType = new String("当前积分公式：复化梯形积分");
+            ModeTypeInt = 5;
+            JFieldFun.setText(ModeType);
         }
-        else if (M == "seg")
+        else if (num == 6)
         {
-            ModeType = new String("当前：分段插值");
-            ModeTypeInt = 3;
-            jFieldMode.setText(ModeType);
+            ModeType = new String("当前积分模式：复化Simpson积分");
+            ModeTypeInt = 6;
+            JFieldFun.setText(ModeType);
         }
-            
+        else if (num == 7)
+        {
+            ModeType = new String("当前积分模式：Romberg积分");
+            ModeTypeInt = 7;
+            JFieldFun.setText(ModeType);
+        }
+    }
+}
+
+class fun{
+    public double a, b, h,epsilon;
+    public int n;
+    public int selectedFun;
+
+    public void setData(double aa, double bb, int nn, int f) {
+        a = aa;
+        b = bb;
+        n = nn;
+        h = (b - a) / n;
+        selectedFun = f;
+    }
+    public void setEpsilon(double e)
+    {
+        epsilon = e;
+    }
+    /**
+     * @param x
+     * @param num 1表示第一个函数，2表示第二个函数，以此类推
+     * @return
+     */
+    private double calculate(double x, int num) {
+        if (num == 1)
+            return Math.sqrt(4 - (Math.sin(x)) * (Math.sin(x)));
+        if (num == 2)
+            return (double) (Math.sin(x) / x);
+        if (num == 3)
+            return (double) ((Math.pow(Math.E, x)) / (4 + x * x));
+        if (num == 4)
+            return (double) (Math.log(1 + x) / (1 + x * x));
+        return -1;
+    }
+
+    /**
+     * funtype == 1 复合梯形
+     * funtype == 2 simpson
+     * funtype == 3 Romberg
+     * @return
+     */
+    private double calculateFun(int funtype) {
+        if (funtype == 1) 
+        {
+            double res = 0;
+            double cur = a;
+            int times = n;
+            while (times > 0) {
+                res += h / 2 * (calculate(cur, selectedFun) + calculate(cur + h, selectedFun));
+                times--;
+                cur += h;
+            }
+            return res;
+        }
+        if (funtype == 2)
+        {
+            double res = 0;
+            double cur = a;
+            int times = n / 2;
+            while (times > 0)
+            {
+                res += h / 3 * (calculate(cur, selectedFun) + 4 * calculate(cur + h, selectedFun) + calculate(cur + 2 * h, selectedFun));
+                times--;
+                cur += 2 * h;
+            }
+            return res;
+        }
+        if (funtype == 3)
+        {
+            int m = 1, k = 1;
+            double hh = (b - a) / 2.0;
+            double T0 = hh * (calculate(a,selectedFun) + calculate(b,selectedFun)), T = 3;
+            double F = 0;
+            while(Math.abs(T - T0) >= 3 * epsilon)
+            {
+            if(m != 1)
+                T0 = T;
+            F = 0;
+            k = (int) Math.pow(2., m - 1);
+            for(int i = 1; i <= k ; i++)
+            {
+                F += calculate(a + (2 * i - 1) * hh , selectedFun);
+            }
+            T = T0 / 2.0 + hh * F;
+            m += 1;
+            hh /= 2.0;  	
+            }
+            return T;
+
+        }
+        return -1;
     }
 }
