@@ -8,6 +8,11 @@ import java.awt.Graphics;
 
 public class NumericalIntegrating {
 
+    static String strValueN = new String();
+    static String strValueABE = new String();
+    static int valueN;
+    static double valueA,valueB,valueE;
+    static int flag = 0;//0表示没有e，1表示有e
     static String FunType = new String("NULL");// 默认的初始模式是空模式
     static String ModeType = new String("NULL");
     static int FunTypeInt = 0;//1 2 3 4
@@ -20,26 +25,21 @@ public class NumericalIntegrating {
     static JTextField jFieldMode = new JTextField(120);// 模式选择
     static JTextField JFieldFun = new JTextField(120);
     static JTextField jFieldResult = new JTextField(80);
-
-    public void paint(Graphics g) {
-        g.setColor(Color.blue);
-        g.drawLine(100, 100, 300, 300);
-    }
-
+    static fun f = new fun();
     public static void main(String[] args) {
         System.out.println("Test Success!");
         NumericalIntegrating NI = new NumericalIntegrating();
 
         NI.initMenuBar();// 初始化菜单栏
         NI.initUI();// 初始化UI界面
-
-        // Lagrange l2 = new Lagrange();
-        // l2.setData(xx, yy);
-        // System.out.println(l2.calcluate(0.596));
-        // NewTon newTon = new NewTon();y
-        // newTon.setData(xx, yy);
-        // System.out.println(newTon.calculate(0.596));
-
+        /*
+        fun f = new fun();
+        f.setData(0, 1, 20, 4);
+        f.setEpsilon(0.001);
+        System.out.println(f.calculateFun(1));
+        System.out.println(f.calculateFun(2));
+        System.out.println(f.calculateFun(3));
+        */
     }
     /*
      * public void processInput(String sx,String sy) { String [] strx =
@@ -51,7 +51,32 @@ public class NumericalIntegrating {
      * double[strw.length]; for (int i = 0;i < strw.length;i++) doublew[i] =
      * Double.parseDouble(strw[i]); }
      */
-
+    public void processInput(String strABEN)
+    {
+        String [] str = strABEN.split(" ");
+        if (str.length == 1)//一个参数，只有N
+        {
+            valueN = Integer.valueOf(str[0]);
+        }
+        else if (str.length == 2)//两个参数，没有e,只有AB
+        {
+            valueA = Double.parseDouble(str[0]);
+            valueB = Double.parseDouble(str[1]);
+            flag = 0;
+        }
+        else if (str.length == 3)//三个参数ABE
+        {
+            valueA = Double.parseDouble(str[0]);
+            valueB = Double.parseDouble(str[1]);
+            valueE = Double.parseDouble(str[2]);
+            flag = 1;
+        }
+    }
+    public void updateUI(double res)
+    {
+        String restr = String.valueOf(res);
+        jFieldResult.setText(restr);
+    }
     public void initUI() {
 
         /**
@@ -91,7 +116,7 @@ public class NumericalIntegrating {
         labelfun.setBounds(20, 70, 130, 20);
         labelfun.setForeground(Color.BLUE);
         p.add(labelfun);
-        JLabel label2 = new JLabel("请输入积分上下限：");
+        JLabel label2 = new JLabel("请输入积分上下限(请输入非分数)：");
         label2.setBounds(20, 120, 130, 20);
         p.add(label2);
         JLabel labelPrompt = new JLabel("输入格式：a b e(若有)");
@@ -124,24 +149,13 @@ public class NumericalIntegrating {
         JFieldFun.setBounds(250, 70, 200, 30);
         JFieldFun.setForeground(Color.RED);
         p.add(JFieldFun);
-        // frame.add(jFieldMode);
+        
         final JTextField jFieldX = new JTextField(80);
         jFieldX.setBounds(250, 120, 200, 30);
         p.add(jFieldX);
         final JTextField jFieldn = new JTextField(80);
         jFieldn.setBounds(250, 180, 200, 30);
         p.add(jFieldn);
-        // frame.add(jFieldX);
-        /*
-         * final JTextField jFieldY = new JTextField(80); jFieldY.setBounds(100, 140,
-         * 200, 30); p.add(jFieldY);
-         */
-        // frame.add(jFieldY);
-        /*
-         * final JTextField jFieldW = new JTextField(80); jFieldW.setBounds(100, 180,
-         * 200, 30); p.add(jFieldW);
-         */
-        // frame.add(jFieldW);
         jFieldResult = new JTextField(80);
         jFieldResult.setEditable(false);
         jFieldResult.setBounds(250, 240, 200, 30);
@@ -169,7 +183,34 @@ public class NumericalIntegrating {
                  * nTon.setData(doublex, doubley); updateUI(nTon); } if (FunTypeInt == 3) {
                  * seg.setData(doublex,doubley); updateUI(seg); }
                  */
+                String tmpStrABE = new String("");
+                String tmpStrN = new String("");
+                tmpStrABE = jFieldX.getText();
+                tmpStrN = jFieldn.getText();
 
+                processInput(tmpStrABE);
+                processInput(tmpStrN);
+                
+                if (flag == 0)
+                {
+                    f.setData(valueA, valueB, valueN, FunTypeInt);
+                }
+                else if (flag == 1)
+                {
+                    f.setData(valueA, valueB, valueN, FunTypeInt);
+                    f.setEpsilon(valueE);
+                }
+                System.out.println(ModeTypeInt);
+                System.out.println(f.calculateFun(ModeTypeInt));
+                updateUI(f.calculateFun(ModeTypeInt));
+                
+                /*
+                System.out.println(valueA);
+                System.out.println(valueB);
+                System.out.println(valueE);
+                System.out.println(valueN);
+                */
+                
             }
         });
 
@@ -304,19 +345,19 @@ public class NumericalIntegrating {
         else if (num == 5)
         {
             ModeType = new String("当前积分公式：复化梯形积分");
-            ModeTypeInt = 5;
+            ModeTypeInt = 1;
             JFieldFun.setText(ModeType);
         }
         else if (num == 6)
         {
             ModeType = new String("当前积分模式：复化Simpson积分");
-            ModeTypeInt = 6;
+            ModeTypeInt = 2;
             JFieldFun.setText(ModeType);
         }
         else if (num == 7)
         {
             ModeType = new String("当前积分模式：Romberg积分");
-            ModeTypeInt = 7;
+            ModeTypeInt = 3;
             JFieldFun.setText(ModeType);
         }
     }
@@ -347,7 +388,12 @@ class fun{
         if (num == 1)
             return Math.sqrt(4 - (Math.sin(x)) * (Math.sin(x)));
         if (num == 2)
-            return (double) (Math.sin(x) / x);
+        {
+            if (x == 0)
+                return (double)(Math.cos(x));//洛必达法则，0/0型
+            else 
+                return (double) (Math.sin(x) / x);
+        }
         if (num == 3)
             return (double) ((Math.pow(Math.E, x)) / (4 + x * x));
         if (num == 4)
@@ -356,13 +402,13 @@ class fun{
     }
 
     /**
-     * funtype == 1 复合梯形
-     * funtype == 2 simpson
-     * funtype == 3 Romberg
+     * modetype == 1 复合梯形
+     * modetype == 2 simpson
+     * modetype == 3 Romberg
      * @return
      */
-    private double calculateFun(int funtype) {
-        if (funtype == 1) 
+    public double calculateFun(int modetype) {
+        if (modetype == 1) 
         {
             double res = 0;
             double cur = a;
@@ -374,7 +420,7 @@ class fun{
             }
             return res;
         }
-        if (funtype == 2)
+        if (modetype == 2)
         {
             double res = 0;
             double cur = a;
@@ -387,7 +433,7 @@ class fun{
             }
             return res;
         }
-        if (funtype == 3)
+        if (modetype == 3)
         {
             int m = 1, k = 1;
             double hh = (b - a) / 2.0;
@@ -408,7 +454,6 @@ class fun{
             hh /= 2.0;  	
             }
             return T;
-
         }
         return -1;
     }
